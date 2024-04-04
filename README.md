@@ -1,14 +1,14 @@
-# WebSocket Intro
+# WebSocket Chat Application
 
-This is a simple WebSocket application that serves as an introduction to WebSocket technology. It consists of a client-side and server-side component for real-time communication between a client and a server.
+This is a simple WebSocket chat application that facilitates real-time messaging between clients connected to the server. It consists of a server-side component built with Node.js and Socket.IO, and a client-side interface using HTML, CSS, and JavaScript.
 
-#### Features
+### Features
 
-- **Real-time Messaging:** Allows users to send and receive messages in real-time between the client and server.
-- **Simple Interface:** Provides a minimalistic user interface for sending and displaying messages.
-- **WebSocket Communication:** Utilizes WebSocket technology for bi-directional communication between the client and server.
+- **Real-time Messaging:** Users can send and receive messages instantly, with updates displayed in real-time.
+- **Simple Interface:** The application provides a minimalist user interface for sending and viewing messages.
+- **WebSocket Communication:** Utilizes WebSocket technology for bi-directional communication between clients and the server.
 
-#### Installation
+### Installation
 
 1. Clone the repository:
 
@@ -29,15 +29,81 @@ This is a simple WebSocket application that serves as an introduction to WebSock
    npm start
    ```
 
-4. Open the `index.html` file in a web browser to start the client-side application.
+4. Open the `index.html` file in a web browser to access the client-side interface.
 
-#### Usage
+### Usage
 
 1. Open the `index.html` file in a web browser to access the client-side interface.
 2. Enter a message in the input field and click the "Send" button to send the message to the server.
-3. The server will echo the message back to all connected clients, and the message will be displayed in the list of messages.
+3. The server will broadcast the message to all connected clients, and the message will be displayed in the chat interface.
 
-#### Dependencies
+### Server Configuration
+
+The server-side code (`app.js`) creates a WebSocket server using Socket.IO. It listens for incoming connections and relays messages between clients.
+
+```javascript
+import { createServer } from 'http'
+import { Server } from 'socket.io'
+
+const httpServer = createServer()
+const io = new Server(httpServer, {
+    cors: {
+        origin: process.env.NODE_ENV === 'production' ? false : ['http://localhost:5500', 'http://127.0.0.1:5500']
+    }
+})
+
+io.on('connection', socket => {
+    console.log(`User ${socket.id} connected`)
+
+    socket.on('message', data => {
+        console.log(data)
+        io.emit('message', `${socket.id.substring(0, 5)}: ${data}`)
+    })
+})
+
+httpServer.listen(3400, () => {
+    console.log(`Server is listening on port 3400`)
+})
+```
+
+### Client Configuration
+
+The client-side code (`app.js`) initializes a Socket.IO client and establishes a WebSocket connection with the server. It handles sending and receiving messages.
+
+```javascript
+const socket = io('ws://localhost:3400')
+const input = document.querySelector('input')
+const form = document.querySelector('form')
+const ul = document.querySelector('ul')
+
+function sendMessage(e) {
+    e.preventDefault()
+
+    if (input.value){
+        socket.emit('message', input.value)
+        input.value = ''
+    }
+    input.focus()
+}
+
+form.addEventListener('submit', sendMessage)
+
+// Listen for messages received from the server
+socket.on('message', (data) => {
+    const li = document.createElement('li')
+    li.textContent = data
+    ul.appendChild(li)
+})
+```
+
+### Dependencies
 
 - **Node.js:** JavaScript runtime environment for the server-side application.
-- **ws:** WebSocket library for Node.js, used for handling WebSocket connections.
+- **Socket.IO:** WebSocket library for Node.js and the browser, facilitating real-time bidirectional communication.
+- **socket.io-client:** Socket.IO client library for the browser.
+
+### Deployment
+
+This application can be deployed to various hosting platforms or servers capable of running Node.js applications. Ensure that the server environment supports WebSocket connections and that necessary configurations, such as CORS settings, are properly configured.
+
+Enjoy real-time messaging with WebSocket technology!
