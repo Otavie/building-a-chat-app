@@ -1,9 +1,18 @@
+import dotenv from 'dotenv'
+dotenv.config()
 import express from 'express'
 import { Server } from 'socket.io'
+import path from 'path'
+import { fileURLToPath } from 'url'
+
+const __filename = fileURLToPath(import.meta.url)
+const __dirname = path.dirname(__filename)
 
 const PORT = process.env.PORT
 
 const app = express()
+
+app.use(express.static(path.join(__dirname, 'public')))
 
 const expressServer = app.listen(PORT, () => {
     console.log(`Server is running on PORT ${PORT}`)
