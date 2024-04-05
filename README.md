@@ -42,28 +42,43 @@ This is a simple WebSocket chat application that facilitates real-time messaging
 The server-side code (`app.js`) creates a WebSocket server using Socket.IO. It listens for incoming connections and relays messages between clients.
 
 ```javascript
-import { createServer } from 'http'
-import { Server } from 'socket.io'
+import dotenv from "dotenv";
+import express from "express";
+import { Server } from "socket.io";
+import path from "path";
+import { fileURLToPath } from "url";
 
-const httpServer = createServer()
-const io = new Server(httpServer, {
-    cors: {
-        origin: process.env.NODE_ENV === 'production' ? false : ['http://localhost:5500', 'http://127.0.0.1:5500']
-    }
-})
+dotenv.config();
 
-io.on('connection', socket => {
-    console.log(`User ${socket.id} connected`)
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
-    socket.on('message', data => {
-        console.log(data)
-        io.emit('message', `${socket.id.substring(0, 5)}: ${data}`)
-    })
-})
+const PORT = process.env.PORT;
+const app = express();
 
-httpServer.listen(3400, () => {
-    console.log(`Server is listening on port 3400`)
-})
+app.use(express.static(path.join(__dirname, "public")));
+
+const expressServer = app.listen(PORT, () => {
+  console.log(`Server is running on PORT ${PORT}`);
+});
+
+const io = new Server(expressServer, {
+  cors: {
+    origin:
+      process.env.NODE_ENV === "production"
+        ? false
+        : ["http://localhost:5500", "http://127.0.0.1:5500"],
+  },
+});
+
+io.on("connection", (socket) => {
+  console.log(`User ${socket.id} connected`);
+
+  socket.on("message", (data) => {
+    console.log(data);
+    io.emit("message", `${socket.id.substring(0, 5)}: ${data}`);
+  });
+});
 ```
 
 ### Client Configuration
@@ -71,29 +86,29 @@ httpServer.listen(3400, () => {
 The client-side code (`app.js`) initializes a Socket.IO client and establishes a WebSocket connection with the server. It handles sending and receiving messages.
 
 ```javascript
-const socket = io('ws://localhost:3400')
-const input = document.querySelector('input')
-const form = document.querySelector('form')
-const ul = document.querySelector('ul')
+const socket = io("ws://localhost:3400");
+const input = document.querySelector("input");
+const form = document.querySelector("form");
+const ul = document.querySelector("ul");
 
 function sendMessage(e) {
-    e.preventDefault()
+  e.preventDefault();
 
-    if (input.value){
-        socket.emit('message', input.value)
-        input.value = ''
-    }
-    input.focus()
+  if (input.value) {
+    socket.emit("message", input.value);
+    input.value = "";
+  }
+  input.focus();
 }
 
-form.addEventListener('submit', sendMessage)
+form.addEventListener("submit", sendMessage);
 
 // Listen for messages received from the server
-socket.on('message', (data) => {
-    const li = document.createElement('li')
-    li.textContent = data
-    ul.appendChild(li)
-})
+socket.on("message", (data) => {
+  const li = document.createElement("li");
+  li.textContent = data;
+  ul.appendChild(li);
+});
 ```
 
 ### Dependencies
@@ -105,5 +120,3 @@ socket.on('message', (data) => {
 ### Deployment
 
 This application can be deployed to various hosting platforms or servers capable of running Node.js applications. Ensure that the server environment supports WebSocket connections and that necessary configurations, such as CORS settings, are properly configured.
-
-Enjoy real-time messaging with WebSocket technology!
