@@ -30,6 +30,10 @@ button {
   font-size: 1.25rem;
   padding: 0.5rem;
   cursor: pointer;
+  background-color: black;
+  color: white;
+  outline: none;
+  border: none;
 }
 
 ul {
