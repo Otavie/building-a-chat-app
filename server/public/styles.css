@@ -20,10 +20,19 @@ form {
   flex-direction: column;
 }
 
+.form-message {
+  flex-direction: row;
+  justify-content: space-between;
+}
+
 input {
   font-size: 1.125rem;
   padding: 0.75rem;
   outline: none;
+}
+
+#message {
+  width: calc(95% - 100px);
 }
 
 button {
@@ -36,13 +45,16 @@ button {
   border: none;
 }
 
+.sendBTN {
+  width: 100px;
+}
+
 ul {
   display: flex;
   flex-flow: column;
   justify-content: left;
   list-style-type: none;
   border: 1px solid black;
-  min-height: 3rem;
   width: 80%;
   color: #CCC;
 }
